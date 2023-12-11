@@ -29,16 +29,14 @@ else:
 
 # Initialise set of pipe locations then release the animal to go exploring
 pipe = {start}
-steps = 0
 animal = Turtle(start, start_direction)
 animal.move()
 while animal.loc != start:
     pipe.add(animal.loc)
-    steps += 1
     animal.turnV() # look back the way we came and then don't go that way
     animal.facing = next(d for d in links[chart[animal.loc]] if d != animal.facing)
     animal.move()
-print(steps // 2)
+print(len(pipe) // 2)
 
 # Replace the start square with the appropriate pipe section
 animal.turnV()
