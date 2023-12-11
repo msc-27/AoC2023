@@ -1,4 +1,3 @@
-from functools import reduce
 with open('input') as f:
     lines = [x.strip('\n') for x in f]
 part1, part2 = 0, 0
