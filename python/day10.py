@@ -4,10 +4,7 @@ import grid
 import astar
 with open('input') as f:
     lines = [x.strip('\n') for x in f]
-chart = defaultdict(lambda:'#')
-for y,line in enumerate(lines):
-    for x,c in enumerate(line):
-        chart[(x,y)] = c
+chart = {(x,y): c for y,line in enumerate(lines) for x,c in enumerate(line)}
 def findin(d,x): return {v for v in d if d[v] == x}
 
 links = {'|': {Dir.N, Dir.S}, \
@@ -36,7 +33,6 @@ while animal.loc != start:
     animal.turnV() # look back the way we came and then don't go that way
     animal.facing = next(d for d in links[chart[animal.loc]] if d != animal.facing)
     animal.move()
-print(len(pipe) // 2)
 
 # Replace the start square with the appropriate pipe section
 animal.turnV()
@@ -57,20 +53,13 @@ for p in chart:
 
 # Make set of small scale locations that need to be checked for pipe-enclosure
 remaining = set(chart.keys()) - pipe
-# Transition function for flood fill using A* search utility. Stop at chart edge.
-def trans(loc):
-    if bigchart[loc] != '#':
-        return [(p,1) for p in grid.atmanhat(loc,1) if bigchart[p] != 'P']
-    else:
-        return []
 
-inside = 0
-while remaining:
-    x,y = remaining.pop()
-    big_loc = (x*2, y*2)
-    big_fill = {x[0] for x in astar.astar(big_loc, trans).run(None)}
-    real_fill = {(x//2, y//2) for x,y in big_fill if x%2 == 0 and y%2 == 0}
-    if not any(bigchart[p] == '#' for p in big_fill):
-        inside += len(real_fill)
-    remaining -= real_fill
-print(inside)
+# Flood fill from the corner to find the number of locations outside the pipe.
+# We have a 1-cell boundary all around the pipe in the double-scale map,
+# so this will find all of the outside cells.
+def trans(loc): return [(p,1) for p in grid.atmanhat(loc,1) if bigchart[p] == '.']
+big_fill = {x[0] for x in astar.astar(min(bigchart), trans).run(None)}
+outside = sum(x%2 == 0 and y%2 == 0 for x,y in big_fill)
+
+print(len(pipe) // 2)
+print(len(chart) - len(pipe) - outside)
