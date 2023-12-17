@@ -1,6 +1,6 @@
 import enum
 from collections import defaultdict
-class Dir(enum.Enum):
+class Dir(enum.IntEnum):
     N = 0
     E = 1
     S = 2
